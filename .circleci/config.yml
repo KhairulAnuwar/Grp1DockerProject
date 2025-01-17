@@ -84,8 +84,8 @@ jobs:
       - image: cimg/openjdk:17.0
       - image: cimg/postgres:14.0
         environment:
-          POSTGRES_USER: postgres
-          POSTGRES_DB: ftsolutionadmin
+          POSTGRES_USER: ftsolutionadmin
+          POSTGRES_DB: ftsolution_db
           POSTGRES_PASSWORD: ftsolution
     steps:
       - checkout
