@@ -107,9 +107,3 @@ jobs:
           command: ./mvnw test
 
 
-workflows:
-  version: 2
-  ci_flow:
-    jobs:
-      - build
-      - test
