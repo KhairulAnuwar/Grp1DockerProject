@@ -3,12 +3,12 @@ version: 2.1
 # Importing orbs for Docker and Heroku (Heroku orb added if needed)
 orbs:
   docker: circleci/docker@2.1.1
-  heroku: circleci/heroku@2.0.0
+  # heroku: circleci/heroku@2.0.0
 
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:17-jdk
+      - image: cimg/openjdk:17.0
     steps:
       - checkout
       - setup_remote_docker
@@ -18,7 +18,7 @@ jobs:
 
   # test:
   #   docker:
-  #     - image: circleci/openjdk:17-jdk
+  #     - image: cimg/openjdk:17.0
   #   steps:
   #     - checkout
   #     - run:
