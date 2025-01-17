@@ -1,0 +1,69 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:17-jdk
+    steps:
+      - checkout
+      - run:
+          name: Build Project
+          command: mvn clean package
+
+  # docker_build:
+  #   docker:
+  #     - image: circleci/docker
+  #   steps:
+  #     - checkout
+  #     - setup_remote_docker
+  #     - run:
+  #         name: Build Docker Image
+  #         command: |
+  #           docker build -t my-springboot-app .
+  #     - run:
+  #         name: Tag Docker Image
+  #         command: |
+  #           docker tag my-springboot-app:latest registry.heroku.com/${HEROKU_APP_NAME}/web
+  #     - run:
+  #         name: Push Docker Image to Heroku
+  #         command: |
+  #           echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
+  #           docker push registry.heroku.com/${HEROKU_APP_NAME}/web
+
+  # test:
+  #   docker:
+  #     - image: circleci/openjdk:17-jdk
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Run Unit Tests
+  #         command: mvn test
+
+  # deploy:
+  #   docker:
+  #     - image: circleci/openjdk:17-jdk
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Release App to Heroku
+  #         command: |
+  #           heroku container:release web --app ${HEROKU_APP_NAME}
+
+workflows:
+  version: 2
+  ci_flow:
+    jobs:
+      - build
+
+  # cicd_flow:
+  #   jobs:
+  #     - build
+  #     - docker_build:
+  #         requires:
+  #           - build
+  #     - test:
+  #         requires:
+  #           - docker_build
+  #     - deploy:
+  #         requires:
+  #           - test
