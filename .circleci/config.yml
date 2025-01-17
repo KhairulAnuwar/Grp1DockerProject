@@ -4,7 +4,7 @@ orbs:
   docker: circleci/docker@2.1.1
 
 jobs:
-  build:
+   build:
     docker:
       - image: cimg/openjdk:17.0
       - image: cimg/postgres:14.0
@@ -22,7 +22,7 @@ jobs:
           name: Build with Maven Wrapper
           command: ./mvnw clean package
 
-  test:
+   test:
     docker:
       - image: cimg/openjdk:17.0
     steps:
