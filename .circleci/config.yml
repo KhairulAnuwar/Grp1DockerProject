@@ -1,4 +1,46 @@
-# version: 2.1
+version: 2.1
+
+orbs:
+  docker: circleci/docker@2.1.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/openjdk:17.0
+      - image: cimg/postgres:14.0
+        environment:
+          POSTGRES_USER: ftsolutionadmin
+          POSTGRES_DB: ftsolution_db
+          POSTGRES_PASSWORD: ftsolution
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Wait for PostgreSQL to be ready
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Build with Maven Wrapper
+          command: ./mvnw clean package
+
+  test:
+    docker:
+      - image: cimg/openjdk:17.0
+    steps:
+      - checkout
+      - run:
+          name: Run Tests
+          command: ./mvnw test
+
+
+
+
+
+
+
+
+
+
+          # version: 2.1
 
 # # Importing orbs for Docker and Heroku (Heroku orb added if needed)
 # orbs:
@@ -72,36 +114,3 @@
   # ---
   # Ash test
   # --
-  
-version: 2.1
-
-orbs:
-  docker: circleci/docker@2.1.1
-
-jobs:
-  build:
-    docker:
-      - image: cimg/openjdk:17.0
-      - image: cimg/postgres:14.0
-        environment:
-          POSTGRES_USER: ftsolutionadmin
-          POSTGRES_DB: ftsolution_db
-          POSTGRES_PASSWORD: ftsolution
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Wait for PostgreSQL to be ready
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run:
-          name: Build with Maven Wrapper
-          command: ./mvnw clean package
-
-  test:
-    docker:
-      - image: cimg/openjdk:17.0
-    steps:
-      - checkout
-      - run:
-          name: Run Tests
-          command: ./mvnw test
