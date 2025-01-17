@@ -8,7 +8,7 @@ jobs:
       - checkout
       - run:
           name: Build Project
-          command: mvn clean package
+          command: ./mvnw clean package
 
   # docker_build:
   #   docker:
