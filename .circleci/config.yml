@@ -1,69 +1,69 @@
 version: 2.1
 
+# Importing orbs for Docker and Heroku (Heroku orb added if needed)
+orbs:
+  docker: circleci/docker@2.1.1
+  heroku: circleci/heroku@2.0.0
+
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:17-jdk
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build with Maven Wrapper
+          command: ./mvnw clean package
+
+  test:
+    docker:
+      - image: circleci/openjdk:11-jdk
     steps:
       - checkout
       - run:
-          name: Build Project
-          command: ./mvnw clean package
+          name: Run Tests
+          command: ./mvnw test
 
-  # docker_build:
-  #   docker:
-  #     - image: circleci/docker
-  #   steps:
-  #     - checkout
-  #     - setup_remote_docker
-  #     - run:
-  #         name: Build Docker Image
-  #         command: |
-  #           docker build -t my-springboot-app .
-  #     - run:
-  #         name: Tag Docker Image
-  #         command: |
-  #           docker tag my-springboot-app:latest registry.heroku.com/${HEROKU_APP_NAME}/web
-  #     - run:
-  #         name: Push Docker Image to Heroku
-  #         command: |
-  #           echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
-  #           docker push registry.heroku.com/${HEROKU_APP_NAME}/web
+  dockerize:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker Image
+          command: |
+            docker build -t khairula86/sctpgrp1dockerassignment:latest .
+      - run:
+          name: Push Docker Image
+          command: |
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            docker push khairula86/sctpgrp1dockerassignment:latest
 
-  # test:
-  #   docker:
-  #     - image: circleci/openjdk:17-jdk
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Run Unit Tests
-  #         command: mvn test
-
-  # deploy:
-  #   docker:
-  #     - image: circleci/openjdk:17-jdk
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Release App to Heroku
-  #         command: |
-  #           heroku container:release web --app ${HEROKU_APP_NAME}
+  deploy:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
+      - heroku/deploy-via-git:
+          app-name: your-heroku-app-name
+          remote: heroku
 
 workflows:
   version: 2
   ci_flow:
     jobs:
       - build
+      - test
 
-  # cicd_flow:
-  #   jobs:
-  #     - build
-  #     - docker_build:
-  #         requires:
-  #           - build
-  #     - test:
-  #         requires:
-  #           - docker_build
-  #     - deploy:
-  #         requires:
-  #           - test
+  cicd_flow:
+    jobs:
+      - build
+      - test
+      - dockerize:
+          requires:
+            - test
+      - deploy:
+          requires:
+            - dockerize
