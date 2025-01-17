@@ -105,3 +105,11 @@ jobs:
       - run:
           name: Run Tests
           command: ./mvnw test
+
+
+workflows:
+  version: 2
+  ci_flow:
+    jobs:
+      - build
+      - test
