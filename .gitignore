@@ -32,3 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 
+
+### test not require ###
+src/test/java/sg/edu/ntu/ftbsolutionscrm/controller
+
