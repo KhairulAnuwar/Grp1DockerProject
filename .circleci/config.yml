@@ -73,7 +73,6 @@
   # Ash test
   # --
   
-
 version: 2.1
 orbs:
   docker: circleci/docker@2.1.1
@@ -125,11 +124,9 @@ workflows:
   ci_flow:
     jobs:
       - build
-      - test: 
-        requires:
-          - build
-      - dockerize: 
-        requires:
-          - test
-
-
+      - test:
+          requires:
+            - build
+      - dockerize:
+          requires:
+            - test
