@@ -76,6 +76,7 @@
 version: 2.1
 orbs:
   docker: circleci/docker@2.1.1
+  heroku: circleci/heroku@2.0.0
 jobs:
   build:
     docker:
@@ -122,6 +123,25 @@ jobs:
             --password-stdin
 
             docker push khairula86/sctpgrp1dockerassignment:latest
+
+  deploy:
+    docker:
+      - image: circleci/openjdk:17-jdk
+    steps:
+      - setup_remote_docker 
+      - checkout
+      - run:
+          name: Heroku Container Push
+          command: |
+            heroku container:login
+            heroku stack:set container -a sctpgrp1-dockerassignment
+            heroku container:push web -a sctpgrp1-dockerassignment
+            heroku container:release web -a sctpgrp1-dockerassignment
+
+
+
+
+
 workflows:
   version: 2
   ci_flow:
@@ -133,3 +153,6 @@ workflows:
       - dockerize:
           requires:
             - test
+      - deploy:
+          requires:
+            - dockerize
