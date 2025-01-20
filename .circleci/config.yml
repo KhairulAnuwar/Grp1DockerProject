@@ -129,6 +129,7 @@ jobs:
       - image: cimg/openjdk:17.0
     steps:
       - setup_remote_docker 
+      - heroku/install
       - checkout
       - run:
           name: Heroku Container Push
