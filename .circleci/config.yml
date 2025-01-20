@@ -125,10 +125,10 @@ workflows:
   ci_flow:
     jobs:
       - build
-      - test: null
+      - test: 
         requires:
           - build
-      - dockerize: null
+      - dockerize: 
         requires:
           - test
 
