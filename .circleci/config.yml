@@ -104,10 +104,13 @@ jobs:
           command: ./mvnw test
   dockerize:
     docker:
-      - image: circleci/openjdk:11-jdk
+      - image: cimg/openjdk:17.0
     steps:
       - checkout
       - setup_remote_docker
+      - run:
+          name: Build JAR with Maven
+          command: ./mvnw clean package
       - run:
           name: Build Docker Image
           command: |
