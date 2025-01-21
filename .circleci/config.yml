@@ -109,15 +109,15 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run:
-          name: Build JAR with Maven
-          command: ./mvnw clean package
-      - run:
-          name: Verify JAR File
-          command: ls -l target
-      - run:
-          name: Print Current Directory
-          command: pwd
+      # - run:
+      #     name: Build JAR with Maven
+      #     command: ./mvnw clean package
+      # - run:
+      #     name: Verify JAR File
+      #     command: ls -l target
+      # - run:
+      #     name: Print Current Directory
+      #     command: pwd
       - run:
           name: Build Docker Image
           command: |
