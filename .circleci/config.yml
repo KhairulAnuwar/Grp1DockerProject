@@ -1,7 +1,99 @@
+# version: 2.1
+# orbs:
+#   docker: circleci/docker@2.1.1
+#   heroku: circleci/heroku@2.0.0
+# jobs:
+#   build:
+#     docker:
+#       - image: cimg/openjdk:17.0
+#       - image: cimg/postgres:14.0
+#         environment:
+#           POSTGRES_USER: ftsolutionadmin
+#           POSTGRES_DB: ftsolution_db
+#           POSTGRES_PASSWORD: ftsolution
+#     steps:
+#       - checkout
+#       - setup_remote_docker
+#       - run:
+#           name: Wait for PostgreSQL to be ready
+#           command: dockerize -wait tcp://localhost:5432 -timeout 1m
+#       - run:
+#           name: Build with Maven Wrapper
+#           command: ./mvnw clean package
+#   test:
+#     docker:
+#       - image: cimg/openjdk:17.0
+#     steps:
+#       - checkout
+#       - run:
+#           name: Run Tests
+#           command: ./mvnw test
+#   dockerize:
+#     docker:
+#       - image: cimg/openjdk:17.0
+#     steps:
+#       - checkout
+#       - setup_remote_docker
+#       - run:
+#           name: Build JAR with Maven
+#           command: ./mvnw clean package
+#       - run:
+#           name: Verify JAR File
+#           command: ls -l target
+#       - run:
+#           name: Print Current Directory
+#           command: pwd
+#       - run:
+#           name: Build Docker Image
+#           command: |
+#             docker build -t khairula86/sctpgrp1dockerassignment:latest .
+#       - run:
+#           name: Push Docker Image
+#           command: >
+#             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME"
+#             --password-stdin
+
+#             docker push khairula86/sctpgrp1dockerassignment:latest
+
+#   deploy:
+#     docker:
+#       - image: cimg/openjdk:17.0
+#     steps:
+#       - setup_remote_docker 
+#       - heroku/install
+#       - checkout
+#       - run:
+#           name: Heroku Container Push
+#           command: |
+#             heroku container:login
+#             heroku stack:set container -a sctpgrp1-dockerassignment
+#             heroku container:push web -a sctpgrp1-dockerassignment
+#             heroku container:release web -a sctpgrp1-dockerassignment
+
+
+
+
+
+# workflows:
+#   version: 2
+#   ci_flow:
+#     jobs:
+#       - build
+#       - test:
+#           requires:
+#             - build
+#       - dockerize:
+#           requires:
+#             - test
+#       - deploy:
+#           requires:
+#             - dockerize
+
 version: 2.1
 orbs:
   docker: circleci/docker@2.1.1
   heroku: circleci/heroku@2.0.0
+
 jobs:
   build:
     docker:
@@ -20,6 +112,11 @@ jobs:
       - run:
           name: Build with Maven Wrapper
           command: ./mvnw clean package
+      - persist_to_workspace:
+          root: .
+          paths:
+            - target
+
   test:
     docker:
       - image: cimg/openjdk:17.0
@@ -28,31 +125,26 @@ jobs:
       - run:
           name: Run Tests
           command: ./mvnw test
+
   dockerize:
     docker:
       - image: cimg/openjdk:17.0
     steps:
       - checkout
       - setup_remote_docker
-      - run:
-          name: Build JAR with Maven
-          command: ./mvnw clean package
+      - attach_workspace:
+          at: .
       - run:
           name: Verify JAR File
           command: ls -l target
-      - run:
-          name: Print Current Directory
-          command: pwd
       - run:
           name: Build Docker Image
           command: |
             docker build -t khairula86/sctpgrp1dockerassignment:latest .
       - run:
           name: Push Docker Image
-          command: >
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME"
-            --password-stdin
-
+          command: |
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             docker push khairula86/sctpgrp1dockerassignment:latest
 
   deploy:
@@ -69,10 +161,6 @@ jobs:
             heroku stack:set container -a sctpgrp1-dockerassignment
             heroku container:push web -a sctpgrp1-dockerassignment
             heroku container:release web -a sctpgrp1-dockerassignment
-
-
-
-
 
 workflows:
   version: 2
