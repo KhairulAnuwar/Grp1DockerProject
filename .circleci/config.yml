@@ -116,6 +116,9 @@ jobs:
           name: Verify JAR File
           command: ls -l target
       - run:
+          name: Print Current Directory
+          command: pwd
+      - run:
           name: Build Docker Image
           command: |
             docker build -t khairula86/sctpgrp1dockerassignment:latest .
