@@ -16,8 +16,8 @@ jobs:
       - setup_remote_docker
       - run:
           name: Wait for PostgreSQL to be ready
-          # command: dockerize -wait tcp://localhost:5432 -timeout 1m
-          command: dockerize -wait tcp://postgres:5432 -timeout 1m
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+          # command: dockerize -wait tcp://postgres:5432 -timeout 1m
       - run:
           name: Build with Maven Wrapper
           command: ./mvnw clean package
