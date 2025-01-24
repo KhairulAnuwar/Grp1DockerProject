@@ -16,8 +16,8 @@ jobs:
       - setup_remote_docker
       - run:
           name: Wait for PostgreSQL to be ready
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
-          # command: dockerize -wait tcp://postgres:5432 -timeout 1m
+          # command: dockerize -wait tcp://localhost:5432 -timeout 1m
+           command: dockerize -wait tcp://postgres:5432 -timeout 1m
       - run:
           name: Build with Maven Wrapper
           command: ./mvnw clean package
@@ -38,12 +38,12 @@ jobs:
       - run:
           name: Build JAR with Maven
           command: ./mvnw clean package
-      - run:
-          name: Verify JAR File
-          command: ls -l target
-      - run:
-          name: Print Current Directory
-          command: pwd
+      # - run:
+      #     name: Verify JAR File
+      #     command: ls -l target
+      # - run:
+      #     name: Print Current Directory
+      #     command: pwd
       - run:
           name: Build Docker Image
           command: |
@@ -70,7 +70,11 @@ jobs:
             heroku stack:set container -a sctpgrp1-dockerassignment
             heroku container:push web -a sctpgrp1-dockerassignment
             heroku container:release web -a sctpgrp1-dockerassignment
-
+# testing
+      - run:
+          name: Set Heroku Config Vars
+          command: |
+            heroku config:set DATABASE_URL=postgres://ftsolutionadmin:ftsolution@postgres:5432/ftsolution_db -a sctpgrp1-dockerassignment
 
 
 
