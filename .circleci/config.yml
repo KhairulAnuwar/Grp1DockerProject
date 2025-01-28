@@ -317,7 +317,7 @@ jobs:
           command: |           
             # Build the image with both a version tag and the :latest tag
             docker build -t khairula86/sctpgrp1dockerassignment:latest .
-    - run:
+      - run:
           name: Push Docker Image
           command: |
             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
