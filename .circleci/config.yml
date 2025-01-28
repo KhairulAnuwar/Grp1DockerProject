@@ -317,15 +317,12 @@ jobs:
           command: |           
             # Build the image with both a version tag and the :latest tag
             docker build -t khairula86/sctpgrp1dockerassignment:latest .
-      - run:
-          name: Log in to DockerHub
+    - run:
+          name: Push Docker Image
           command: |
-            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            docker push khairula86/sctpgrp1dockerassignment:latest
 
-      - run:
-          name: Push Docker images
-          command: |
-            docker push khairula86/sctpgrp1dockerassignment:latest .
   deploy:
     docker:
       - image: khairula86/sctpgrp1dockerassignment
