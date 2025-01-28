@@ -320,7 +320,7 @@ jobs:
       - run:
           name: Log in to DockerHub
           command: |
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 
       - run:
           name: Push Docker images
