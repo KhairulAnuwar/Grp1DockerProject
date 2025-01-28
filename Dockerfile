@@ -12,18 +12,18 @@
 #--------------------------------------------------------------------------
 
 # Build stage
-FROM maven:3.8.4-openjdk-17 AS build
-WORKDIR /app
-COPY pom.xml .
-COPY src ./src
-RUN mvn clean package -DskipTests
+# FROM maven:3.8.4-openjdk-17 AS build
+# WORKDIR /app
+# COPY pom.xml .
+# COPY src ./src
+# RUN mvn clean package -DskipTests
 
-# Run stage
-FROM openjdk:17-jdk-slim
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# # Run stage
+# FROM openjdk:17-jdk-slim
+# WORKDIR /app
+# COPY --from=build /app/target/*.jar app.jar
+# EXPOSE 8080
+# ENTRYPOINT ["java", "-jar", "app.jar"]
 
 # # CMD ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar app.jar"]
 # CMD ["java", "-Dserver.port=${PORT:-8080}", "-jar", "app.jar"]
@@ -66,16 +66,16 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 # --Dimitris
 
-# FROM eclipse-temurin:17-jdk-jammy
-# WORKDIR /app
-# ENV PORT=8088
-# ARG VERSION=latest
-# COPY .mvn/ .mvn
-# COPY mvnw pom.xml ./
-# COPY src ./src
-# RUN apt-get update && apt-get install -y \
-#     docker.io \
-#     && apt-get clean \
-#     && rm -rf /var/lib/apt/lists/*
-# RUN ./mvnw install -DskipTests
-# CMD ["./mvnw", "spring-boot:run"]
+FROM eclipse-temurin:17-jdk-jammy
+WORKDIR /app
+ENV PORT=8088
+ARG VERSION=latest
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+COPY src ./src
+RUN apt-get update && apt-get install -y \
+    docker.io \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+RUN ./mvnw install -DskipTests
+CMD ["./mvnw", "spring-boot:run"]

@@ -179,57 +179,158 @@
 #             - dockerize
 # ----------------------------------------------------------------------------------------------------------------
 
+# version: 2.1
+# orbs:
+#   docker: circleci/docker@2.1.1
+#   heroku: circleci/heroku@2.0.0
+
+# jobs:
+#   build:
+#     docker:
+#       - image: cimg/openjdk:17.0
+#       - image: cimg/postgres:14.0
+#         environment:
+#           POSTGRES_USER: ftsolutionadmin
+#           POSTGRES_DB: ftsolution_db
+#           POSTGRES_PASSWORD: ftsolution
+#     steps:
+#       - checkout
+#       - setup_remote_docker
+#       - run:
+#           name: Wait for PostgreSQL to be ready
+#           command: dockerize -wait tcp://localhost:5432 -timeout 1m
+#       - run:
+#           name: Build with Maven
+#           command: ./mvnw clean package -DskipTests
+
+#   test:
+#     docker:
+#       - image: cimg/openjdk:17.0
+#     steps:
+#       - checkout
+#       - run:
+#           name: Run Tests
+#           command: ./mvnw test
+
+#   dockerize:
+#     docker:
+#       - image: cimg/openjdk:17.0
+#     steps:
+#       - checkout
+#       - setup_remote_docker
+#       - run:
+#           name: Build Docker Image
+#           command: docker build -t khairula86/sctpgrp1dockerassignment:latest .
+#       - run:
+#           name: Push Docker Image
+#           command: |
+#             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+#             docker push khairula86/sctpgrp1dockerassignment:latest
+
+#   deploy:
+#     docker:
+#       - image: cimg/openjdk:17.0
+#     steps:
+#       - setup_remote_docker
+#       - heroku/install
+#       - checkout
+#       - run:
+#           name: Heroku Container Push
+#           command: |
+#             heroku container:login
+#             heroku stack:set container -a sctpgrp1-dockerassignment
+#             heroku container:push web -a sctpgrp1-dockerassignment
+#             heroku container:release web -a sctpgrp1-dockerassignment
+
+# workflows:
+#   version: 2
+#   ci_flow:
+#     jobs:
+#       - build
+#       - test:
+#           requires:
+#             - build
+#       - dockerize:
+#           requires:
+#             - test
+#       - deploy:
+#           requires:
+#             - dockerize
+# ................................................................................................................
+# dimitri
 version: 2.1
+
 orbs:
-  docker: circleci/docker@2.1.1
+  maven: circleci/maven@2.0.0
   heroku: circleci/heroku@2.0.0
+  docker: circleci/docker@2.1.4
+  postgres: onehq/postgres@1.1.0
+  snyk: snyk/snyk@1.5.0
 
 jobs:
   build:
     docker:
-      - image: cimg/openjdk:17.0
-      - image: cimg/postgres:14.0
+      - image: eclipse-temurin:17-jdk-jammy
+      - image: postgis/postgis:15-3.3
         environment:
           POSTGRES_USER: ftsolutionadmin
-          POSTGRES_DB: ftsolution_db
           POSTGRES_PASSWORD: ftsolution
+          POSTGRES_DB: ftsolution_db
     steps:
       - checkout
-      - setup_remote_docker
       - run:
-          name: Wait for PostgreSQL to be ready
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+          name: Install Maven
+          command: |
+            apt-get update && apt-get install -y maven
       - run:
-          name: Build with Maven
-          command: ./mvnw clean package -DskipTests
-
+          name: Install Dependencies
+          command: mvn install -DskipTests
   test:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: eclipse-temurin:17-jdk-jammy
+      - image: postgis/postgis:15-3.3
+        environment:
+          POSTGRES_HOST: postgres
+          POSTGRES_USER: ftsolutionadmin
+          POSTGRES_PASSWORD: ftsolution
+          POSTGRES_DB: ftsolution_db
     steps:
       - checkout
       - run:
-          name: Run Tests
-          command: ./mvnw test
-
-  dockerize:
-    docker:
-      - image: cimg/openjdk:17.0
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Build Docker Image
-          command: docker build -t khairula86/sctpgrp1dockerassignment:latest .
-      - run:
-          name: Push Docker Image
+          name: Install Maven
           command: |
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-            docker push khairula86/sctpgrp1dockerassignment:latest
+            apt-get update && apt-get install -y maven
+      - run:
+          name: Install Dependencies
+          command: mvn install -DskipTests
+      - run: |
+          echo "Running tests"
+          mvn test
+  publish:
+    executor: docker/docker
+    steps:
+      - setup_remote_docker
+      - checkout
+      - docker/check
+      - run:
+          name: Build Docker image
+          command: |
+           
 
+            # Build the image with both a version tag and the :latest tag
+            docker build -t khairula86/sctpgrp1dockerassignment:latest .
+      - run:
+          name: Log in to DockerHub
+          command: |
+            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+
+      - run:
+          name: Push Docker images
+          command: |
+            docker push khairula86/sctpgrp1dockerassignment:latest .
   deploy:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: khairula86/sctpgrp1dockerassignment
     steps:
       - setup_remote_docker
       - heroku/install
@@ -250,9 +351,9 @@ workflows:
       - test:
           requires:
             - build
-      - dockerize:
+      - publish:
           requires:
             - test
       - deploy:
           requires:
-            - dockerize
+            - publish
